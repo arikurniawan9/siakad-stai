@@ -1,0 +1,17 @@
+password : q9GhEUAmMOPWzLnN
+
+.env.local : 
+# Connect to Supabase via connection pooling
+DATABASE_URL="postgresql://postgres.swdgtxkeemdrmqaecvhb:[q9GhEUAmMOPWzLnN]@aws-1-ap-southeast-2.pooler.supabase.com:6543/postgres?pgbouncer=true"
+
+# Direct connection to the database. Used for migrations
+DIRECT_URL="postgresql://postgres.swdgtxkeemdrmqaecvhb:[q9GhEUAmMOPWzLnN]@aws-1-ap-southeast-2.pooler.supabase.com:5432/postgres"
+
+
+project-ID : swdgtxkeemdrmqaecvhb
+
+API URL : https://swdgtxkeemdrmqaecvhb.supabase.co
+API KEY : sb_publishable_Z_rJ1hfXY48N8PhYuPbcYw_SRWjb1jR
+anon public : eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN3ZGd0eGtlZW1kcm1xYWVjdmhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1NTQ5MTYsImV4cCI6MjA5MTEzMDkxNn0.ce7SQWFhqbqYlqYsOD1GrBc1ABgi1ROFv8ZhuxQ5X0U
+
+service role secret : eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN3ZGd0eGtlZW1kcm1xYWVjdmhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1NTQ5MTYsImV4cCI6MjA5MTEzMDkxNn0.ce7SQWFhqbqYlqYsOD1GrBc1ABgi1ROFv8ZhuxQ5X0U

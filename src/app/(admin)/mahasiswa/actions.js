@@ -14,6 +14,16 @@ export async function bulkDeleteMahasiswa(ids) {
   revalidatePath('/mahasiswa');
 }
 
+export async function createMahasiswa(values) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from('mahasiswa')
+    .insert([values]);
+
+  if (error) throw new Error(error.message);
+  revalidatePath('/mahasiswa');
+}
+
 export async function deleteMahasiswa(id) {
   const supabase = await createClient();
   const { error } = await supabase.from('profiles').delete().eq('id', id);

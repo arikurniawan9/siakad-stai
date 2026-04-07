@@ -21,6 +21,11 @@ export const MENU_ITEMS = [{
   label: 'Master Akademik',
   icon: BookOpen,
   children: [{
+    key: 'prodi',
+    label: 'Program Studi',
+    url: '/prodi',
+    parentKey: 'master-akademik'
+  }, {
     key: 'mahasiswa',
     label: 'Mahasiswa',
     url: '/mahasiswa',

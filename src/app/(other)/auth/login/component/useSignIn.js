@@ -32,47 +32,45 @@ const useSignIn = () => {
   const login = handleSubmit(async (values) => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      // 1. Authenticate with Supabase Auth
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
         email: values.email,
         password: values.password,
       });
 
-      if (error) {
-        showNotification({
-          message: error.message,
-          variant: 'danger'
+      if (authError) {
+        showNotification({ message: authError.message, variant: 'danger' });
+        setLoading(false);
+        return;
+      }
+
+      // 2. Check if Profile exists in public.profiles
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', data.user.id)
+        .single();
+
+      if (profileError || !profile) {
+        // If auth success but no profile found, it means data is inconsistent
+        await supabase.auth.signOut();
+        showNotification({ 
+          message: 'Akun Anda terdaftar di sistem autentikasi tetapi data profil tidak ditemukan. Hubungi Admin.', 
+          variant: 'danger' 
         });
       } else {
-        showNotification({
-          message: 'Berhasil masuk. Mengalihkan...',
-          variant: 'success'
-        });
-        
-        // Check user role for redirection if needed
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', data.user.id)
-          .single();
-
+        showNotification({ message: 'Berhasil masuk. Mengalihkan...', variant: 'success' });
         router.push(queryParams['redirectTo'] ?? '/dashboard');
         router.refresh();
       }
     } catch (err) {
-      showNotification({
-        message: 'Terjadi kesalahan sistem',
-        variant: 'danger'
-      });
+      showNotification({ message: 'Terjadi kesalahan sistem', variant: 'danger' });
     } finally {
       setLoading(false);
     }
   });
 
-  return {
-    loading,
-    login,
-    control
-  };
+  return { loading, login, control };
 };
 
 export default useSignIn;
