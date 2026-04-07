@@ -8,6 +8,7 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+// Enums
 enum UserRole {
   admin
   bendahara
@@ -15,62 +16,213 @@ enum UserRole {
   mahasiswa
 }
 
-model Profile {
-  id           String    @id @db.Uuid
-  email        String    @unique
-  role         UserRole  @default(mahasiswa)
-  nama_lengkap String?
-  created_at   DateTime  @default(now()) @db.Timestamptz(6)
-  updated_at   DateTime  @default(now()) @db.Timestamptz(6)
-  
-  mahasiswa    Mahasiswa?
-  dosen        Dosen?
-
-  @@map("profiles")
+enum PendaftaranStatus {
+  pending
+  accepted
+  rejected
 }
 
+enum TagihanStatus {
+  Unpaid
+  Paid
+}
+
+enum PaymentMethod {
+  Otomatis
+  Manual
+}
+
+// Settings
 model Settings {
   id              Int      @id @default(1)
-  school_name     String?  @default("SIAKAD UNIVERSITAS")
-  school_logo_url String?  @default("/Wikimedia-logo.png")
+  school_name     String?  @default("SIAKAD UNIVERSITAS") @db.VarChar(255)
+  school_logo_url String?  @default("/Wikimedia-logo.png") @db.VarChar(500)
   updated_at      DateTime @default(now()) @db.Timestamptz(6)
 
   @@map("settings")
 }
 
+// Tahun Ajaran
+model TahunAjaran {
+  id          BigInt   @id @default(autoincrement())
+  tahun       String   @db.VarChar(20)
+  semester    String   @db.VarChar(10)
+  is_active   Boolean  @default(false)
+  created_at  DateTime @default(now()) @db.Timestamptz(6)
+
+  kelas       Kelas[]
+
+  @@map("tahun_ajaran")
+}
+
+// Program Studi
 model ProgramStudi {
   id          BigInt      @id @default(autoincrement())
-  nama_prodi  String
-  kode_prodi  String      @unique
-  fakultas    String?
+  nama_prodi  String      @db.VarChar(255)
+  kode_prodi  String      @unique @db.VarChar(50)
+  fakultas    String?     @db.VarChar(255)
   created_at  DateTime    @default(now()) @db.Timestamptz(6)
-  
+
   mahasiswa   Mahasiswa[]
+  pendaftar   Pendaftar[]
+  kurikulum   Kurikulum[]
+  kelas       Kelas[]
 
   @@map("program_studi")
 }
 
+// Users/Profiles
+model User {
+  id            String    @id @db.Uuid
+  email         String    @unique @db.VarChar(255)
+  role          UserRole  @default(mahasiswa)
+  nama_lengkap  String?   @db.VarChar(255)
+  created_at    DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime  @default(now()) @db.Timestamptz(6)
+
+  mahasiswa     Mahasiswa?
+  dosen         Dosen?
+  pendaftar     Pendaftar?
+
+  @@map("users")
+}
+
+// Pendaftar (PMB)
+model Pendaftar {
+  id              BigInt              @id @default(autoincrement())
+  user_id         String              @unique @db.Uuid
+  nama_lengkap    String              @db.VarChar(255)
+  prodi_pilihan   BigInt
+  status_seleksi  PendaftaranStatus   @default(pending)
+  berkas_url      String?             @db.VarChar(500)
+  created_at      DateTime            @default(now()) @db.Timestamptz(6)
+
+  user            User                @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  program_studi   ProgramStudi        @relation(fields: [prodi_pilihan], references: [id])
+
+  @@map("pendaftar")
+}
+
+// Mahasiswa
+model Mahasiswa {
+  id            String    @id @db.Uuid
+  user_id       String    @unique @db.Uuid
+  nim           String    @unique @db.VarChar(50)
+  prodi_id      BigInt
+  angkatan      Int
+  status_aktif  Boolean   @default(true)
+  created_at    DateTime  @default(now()) @db.Timestamptz(6)
+
+  user          User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  program_studi ProgramStudi @relation(fields: [prodi_id], references: [id])
+
+  krs           KRS[]
+  tagihan       Tagihan[]
+
+  @@map("mahasiswa")
+}
+
+// Dosen
 model Dosen {
-  id           String   @id @db.Uuid
-  nidn         String?  @unique
-  nama_lengkap String
-  created_at   DateTime @default(now()) @db.Timestamptz(6)
-  
-  profile      Profile  @relation(fields: [id], references: [id], onDelete: Cascade)
+  id            String    @id @db.Uuid
+  user_id       String    @unique @db.Uuid
+  nidn          String?   @unique @db.VarChar(50)
+  nama_lengkap  String    @db.VarChar(255)
+  created_at    DateTime  @default(now()) @db.Timestamptz(6)
+
+  user          User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  kelas         Kelas[]
 
   @@map("dosen")
 }
 
-model Mahasiswa {
-  id           String       @id @db.Uuid
-  nim          String       @unique
-  prodi_id     BigInt
-  angkatan     Int
-  status_aktif Boolean      @default(true)
-  created_at   DateTime     @default(now()) @db.Timestamptz(6)
-  
-  profile      Profile      @relation(fields: [id], references: [id], onDelete: Cascade)
-  program_studi ProgramStudi @relation(fields: [prodi_id], references: [id])
+// Kurikulum
+model Kurikulum {
+  id              BigInt    @id @default(autoincrement())
+  nama_kurikulum  String    @db.VarChar(255)
+  prodi_id        BigInt
+  is_active       Boolean   @default(false)
+  created_at      DateTime  @default(now()) @db.Timestamptz(6)
 
-  @@map("mahasiswa")
+  program_studi   ProgramStudi @relation(fields: [prodi_id], references: [id])
+
+  @@map("kurikulum")
+}
+
+// Kelas
+model Kelas {
+  id              BigInt    @id @default(autoincrement())
+  nama_kelas      String    @db.VarChar(255)
+  prodi_id        BigInt
+  dosen_id        String    @db.Uuid
+  tahun_ajaran_id BigInt
+  created_at      DateTime  @default(now()) @db.Timestamptz(6)
+
+  program_studi   ProgramStudi    @relation(fields: [prodi_id], references: [id])
+  dosen           Dosen           @relation(fields: [dosen_id], references: [id])
+  tahun_ajaran    TahunAjaran     @relation(fields: [tahun_ajaran_id], references: [id])
+
+  krs             KRS[]
+  pertemuan       PertemuanKuliah[]
+
+  @@map("kelas")
+}
+
+// Pertemuan Kuliah (Jitsi)
+model PertemuanKuliah {
+  id              BigInt    @id @default(autoincrement())
+  kelas_id        BigInt
+  jitsi_room_id   String    @db.VarChar(255)
+  waktu_mulai     DateTime  @db.Timestamptz(6)
+  created_at      DateTime  @default(now()) @db.Timestamptz(6)
+
+  kelas           Kelas     @relation(fields: [kelas_id], references: [id], onDelete: Cascade)
+
+  @@map("pertemuan_kuliah")
+}
+
+// KRS (Kartu Rencana Studi)
+model KRS {
+  id              BigInt    @id @default(autoincrement())
+  mahasiswa_id    String    @db.Uuid
+  kelas_id        BigInt
+  status          String?   @default("approved") @db.VarChar(50)
+  created_at      DateTime  @default(now()) @db.Timestamptz(6)
+
+  mahasiswa       Mahasiswa @relation(fields: [mahasiswa_id], references: [id], onDelete: Cascade)
+  kelas           Kelas     @relation(fields: [kelas_id], references: [id], onDelete: Cascade)
+
+  @@unique([mahasiswa_id, kelas_id])
+  @@map("krs")
+}
+
+// Tagihan
+model Tagihan {
+  id              BigInt          @id @default(autoincrement())
+  mahasiswa_id    String          @db.Uuid
+  nominal         Decimal         @db.Decimal(12, 2)
+  kategori        String          @db.VarChar(100)
+  status          TagihanStatus   @default(Unpaid)
+  deadline        DateTime?       @db.Timestamptz(6)
+  created_at      DateTime        @default(now()) @db.Timestamptz(6)
+
+  mahasiswa       Mahasiswa       @relation(fields: [mahasiswa_id], references: [id], onDelete: Cascade)
+  transaksi       Transaksi[]
+
+  @@map("tagihan")
+}
+
+// Transaksi
+model Transaksi {
+  id                BigInt        @id @default(autoincrement())
+  tagihan_id        BigInt
+  metode            PaymentMethod
+  bukti_bayar_url   String?       @db.VarChar(500)
+  verified_by       String?       @db.Uuid
+  verified_at       DateTime?     @db.Timestamptz(6)
+  created_at        DateTime      @default(now()) @db.Timestamptz(6)
+
+  tagihan           Tagihan       @relation(fields: [tagihan_id], references: [id], onDelete: Cascade)
+
+  @@map("transaksi")
 }
