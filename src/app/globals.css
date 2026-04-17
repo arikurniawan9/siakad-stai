@@ -23,6 +23,7 @@
 
 html {
   min-height: 100%;
+  font-size: 15px;
 }
 
 body {
@@ -33,6 +34,7 @@ body {
     linear-gradient(180deg, #f8fafc 0%, #edf4f1 100%);
   color: var(--foreground);
   font-family: var(--font-sans), sans-serif;
+  line-height: 1.45;
 }
 
 a {

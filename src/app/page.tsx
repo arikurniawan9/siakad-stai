@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, ShieldCheck, University } from "lucide-react";
+import { ArrowRight, GraduationCap, ShieldCheck, University } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -13,11 +13,31 @@ const highlights = [
 export default function HomePage() {
   return (
     <main className="mx-auto flex min-h-screen max-w-7xl flex-col justify-center px-6 py-10">
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
+        <div className="inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-2 text-sm text-slate-600 shadow-sm">
+          <University className="h-4 w-4 text-[var(--primary)]" />
+          SIAKAD STAI
+        </div>
+        <div className="flex flex-wrap gap-3">
+          <Link href="/pmb">
+            <Button variant="secondary">
+              Info PMB
+            </Button>
+          </Link>
+          <Link href="/pmb/daftar">
+            <Button>
+              Daftar mahasiswa online
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </Link>
+        </div>
+      </div>
+
       <div className="grid items-center gap-8 lg:grid-cols-[1.2fr_0.8fr]">
         <section>
           <div className="inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-2 text-sm text-slate-600 shadow-sm">
-            <University className="h-4 w-4 text-[var(--primary)]" />
-            Production-ready academic operating system
+            <GraduationCap className="h-4 w-4 text-[var(--primary)]" />
+            PMB online dan sistem akademik terpadu
           </div>
           <h1 className="mt-6 max-w-3xl text-5xl font-semibold leading-tight text-slate-950">
             SIAKAD universitas untuk PMB, registrasi, KRS, nilai, keuangan, dan pelaporan.
@@ -27,15 +47,20 @@ export default function HomePage() {
             Supabase-ready auth, dashboard per role, dan migration SQL lengkap.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link href="/login">
+            <Link href="/pmb/daftar">
               <Button size="lg">
-                Masuk ke aplikasi
+                Daftar mahasiswa online
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
-            <Link href="/dashboard">
+            <Link href="/login">
               <Button variant="secondary" size="lg">
-                Lihat dashboard demo
+                Masuk ke aplikasi
+              </Button>
+            </Link>
+            <Link href="/pmb">
+              <Button variant="ghost" size="lg">
+                Lihat info PMB
               </Button>
             </Link>
           </div>
@@ -58,6 +83,14 @@ export default function HomePage() {
                 {item}
               </div>
             ))}
+          </div>
+
+          <div className="mt-6 rounded-2xl border border-emerald-100 bg-emerald-50 p-4 text-sm leading-6 text-emerald-900">
+            Jalur calon mahasiswa:
+            <br />
+            `/pmb` untuk info PMB
+            <br />
+            `/pmb/daftar` untuk pendaftaran online
           </div>
 
           <div className="mt-6 rounded-2xl bg-slate-900 p-4 font-mono text-sm text-emerald-300">
