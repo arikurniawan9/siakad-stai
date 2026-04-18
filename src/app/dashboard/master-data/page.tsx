@@ -1,33 +1,43 @@
+import { connection } from "next/server";
+
 import { Card } from "@/components/ui/card";
-import { requireUser } from "@/lib/auth";
+import { getMasterDataSnapshot } from "@/lib/admin/master-data";
+import { requireAuthorizedUser } from "@/lib/auth";
+import {
+  DosenSection,
+  MahasiswaSection,
+  MasterDataQuickLinks,
+  MataKuliahSection,
+  PenggunaSection,
+  ProgramStudiSection,
+  TahunAkademikSection,
+} from "@/modules/master-data/sections";
 import { RolePanel } from "@/modules/shared/role-panel";
 
-const items = [
-  "Program Studi",
-  "Mata Kuliah",
-  "Dosen",
-  "Mahasiswa",
-  "Tahun Akademik",
-  "Jadwal Kuliah",
-];
-
 export default async function MasterDataPage() {
-  const user = await requireUser(["Admin", "Prodi", "Staff"]);
+  await connection();
+
+  const user = await requireAuthorizedUser("master-data");
+  const snapshot = await getMasterDataSnapshot();
 
   return (
     <div className="space-y-6">
       <RolePanel user={user} />
-      <Card>
-        <p className="text-sm text-slate-500">Master Data</p>
-        <h3 className="mt-1 text-xl font-semibold text-slate-900">Entitas akademik utama</h3>
-        <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {items.map((item) => (
-            <div key={item} className="rounded-3xl bg-slate-50 p-5 text-sm font-medium text-slate-700">
-              {item}
-            </div>
-          ))}
-        </div>
-      </Card>
+      <MasterDataQuickLinks snapshot={snapshot} />
+
+      {snapshot.error ? (
+        <Card className="border-amber-200 bg-amber-50/80">
+          <p className="text-sm font-semibold text-amber-900">Data master belum bisa dimuat penuh</p>
+          <p className="mt-2 text-sm leading-6 text-amber-800">{snapshot.error}</p>
+        </Card>
+      ) : null}
+
+      <ProgramStudiSection snapshot={snapshot} />
+      <MataKuliahSection snapshot={snapshot} />
+      <TahunAkademikSection snapshot={snapshot} />
+      <PenggunaSection snapshot={snapshot} />
+      <DosenSection snapshot={snapshot} />
+      <MahasiswaSection snapshot={snapshot} />
     </div>
   );
 }

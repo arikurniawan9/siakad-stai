@@ -42,9 +42,16 @@ export type KrsCourse = {
 };
 
 export type SidebarItem = {
+  key: string;
   href: string;
   label: string;
   roles: UserRole[];
+  children?: Array<{
+    key: string;
+    href: string;
+    label: string;
+    roles?: UserRole[];
+  }>;
 };
 
 export type LoginState = {
@@ -56,5 +63,6 @@ export type SessionUser = {
   name: string;
   identifier: string;
   role: UserRole;
+  availableRoles: UserRole[];
   email: string;
 };

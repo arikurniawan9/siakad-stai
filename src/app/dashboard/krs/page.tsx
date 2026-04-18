@@ -1,9 +1,9 @@
-import { requireUser } from "@/lib/auth";
+import { requireAuthorizedUser } from "@/lib/auth";
 import { KrsPanel } from "@/modules/krs/krs-panel";
 import { RolePanel } from "@/modules/shared/role-panel";
 
 export default async function KrsPage() {
-  const user = await requireUser(["Admin", "Prodi", "Dosen", "Mahasiswa"]);
+  const user = await requireAuthorizedUser("krs", ["Admin", "Prodi", "Dosen", "Mahasiswa"]);
 
   return (
     <div className="space-y-6">

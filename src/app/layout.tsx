@@ -1,11 +1,16 @@
 import type { Metadata } from "next";
-import { Manrope, IBM_Plex_Mono } from "next/font/google";
+import { IBM_Plex_Mono, Nunito_Sans } from "next/font/google";
+import { Suspense } from "react";
+
+import { ToastSearchParamBridge } from "@/components/ui/toast-search-param-bridge";
+import { ToastProvider } from "@/components/ui/toast-provider";
 
 import "./globals.css";
 
-const manrope = Manrope({
+const nunitoSans = Nunito_Sans({
   variable: "--font-sans",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 const plexMono = IBM_Plex_Mono({
@@ -17,6 +22,11 @@ const plexMono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: "SIAKAD STAI",
   description: "Sistem Informasi Akademik universitas berbasis Next.js dan Supabase.",
+  icons: {
+    icon: "/logostai.png",
+    shortcut: "/logostai.png",
+    apple: "/logostai.png",
+  },
 };
 
 export default function RootLayout({
@@ -25,8 +35,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id" className={`${manrope.variable} ${plexMono.variable}`}>
-      <body>{children}</body>
+    <html lang="id" className={`${nunitoSans.variable} ${plexMono.variable}`}>
+      <body>
+        <ToastProvider>
+          <Suspense fallback={null}>
+            <ToastSearchParamBridge />
+          </Suspense>
+          {children}
+        </ToastProvider>
+      </body>
     </html>
   );
 }

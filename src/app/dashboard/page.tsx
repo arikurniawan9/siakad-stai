@@ -1,9 +1,9 @@
 import { DashboardOverview } from "@/modules/dashboard/overview";
 import { RolePanel } from "@/modules/shared/role-panel";
-import { requireUser } from "@/lib/auth";
+import { requireAuthorizedUser } from "@/lib/auth";
 
 export default async function DashboardPage() {
-  const user = await requireUser();
+  const user = await requireAuthorizedUser("dashboard");
 
   return (
     <div className="space-y-6">

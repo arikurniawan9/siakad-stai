@@ -3,10 +3,12 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-import { COOKIE_NAME, getUserByCredential } from "@/lib/auth";
+import { COOKIE_NAME, getResolvedSessionUser, getUserByCredential } from "@/lib/auth";
 import { getDefaultRolePath } from "@/lib/navigation";
+import { withToastParams } from "@/lib/toast-query";
 import { loginSchema } from "@/lib/validators";
 import { createClient } from "@/supabase/server";
+import type { UserRole } from "@/types/domain";
 
 export type LoginActionState = {
   error: string | null;
@@ -56,7 +58,13 @@ export async function loginAction(_: LoginActionState, formData: FormData) {
     path: "/",
   });
 
-  redirect(getDefaultRolePath(demoUser.role));
+  redirect(
+    withToastParams(getDefaultRolePath(demoUser.role), {
+      variant: "success",
+      title: "Login berhasil",
+      message: `Selamat datang, ${demoUser.name}.`,
+    }),
+  );
 }
 
 export async function logoutAction() {
@@ -69,5 +77,54 @@ export async function logoutAction() {
     await supabase.auth.signOut();
   }
 
-  redirect("/login");
+  redirect(
+    withToastParams("/login", {
+      variant: "info",
+      title: "Anda sudah keluar",
+      message: "Sesi login berhasil diakhiri.",
+    }),
+  );
+}
+
+export async function switchActiveRoleAction(formData: FormData) {
+  const requestedRole = `${formData.get("role") ?? ""}`.trim() as UserRole;
+  const redirectTo = `${formData.get("redirectTo") ?? ""}`.trim();
+  const sessionUser = await getResolvedSessionUser();
+
+  if (!sessionUser) {
+    redirect("/login");
+  }
+
+  if (!sessionUser.availableRoles.includes(requestedRole)) {
+    redirect(
+      withToastParams(redirectTo || getDefaultRolePath(sessionUser.role), {
+        variant: "error",
+        title: "Role tidak tersedia",
+        message: "Role yang dipilih tidak dimiliki oleh akun ini.",
+      }),
+    );
+  }
+
+  const cookieStore = await cookies();
+  cookieStore.set(
+    COOKIE_NAME,
+    JSON.stringify({
+      ...sessionUser,
+      role: requestedRole,
+    }),
+    {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: false,
+      path: "/",
+    },
+  );
+
+  redirect(
+    withToastParams(redirectTo || getDefaultRolePath(requestedRole), {
+      variant: "success",
+      title: "Role aktif diperbarui",
+      message: `Workspace sekarang memakai role ${requestedRole}.`,
+    }),
+  );
 }

@@ -1,9 +1,9 @@
 import { Card } from "@/components/ui/card";
-import { requireUser } from "@/lib/auth";
+import { requireAuthorizedUser } from "@/lib/auth";
 import { RolePanel } from "@/modules/shared/role-panel";
 
 export default async function RegistrationPage() {
-  const user = await requireUser(["Admin", "Staff", "Keuangan", "Mahasiswa"]);
+  const user = await requireAuthorizedUser("registrasi", ["Admin", "Staff", "Keuangan", "Mahasiswa"]);
 
   return (
     <div className="space-y-6">

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Activity, Fingerprint, ShieldCheck } from "lucide-react";
 
 import { Card } from "@/components/ui/card";
@@ -53,9 +54,14 @@ export default function LoginPage() {
           <div className="absolute right-0 top-0 h-40 w-40 rounded-full bg-[rgba(15,118,110,0.12)] blur-3xl" />
 
           <div className="relative">
-            <div className="inline-flex items-center gap-3 rounded-full border border-[rgba(15,118,110,0.16)] bg-white/80 px-4 py-2 text-sm font-medium text-slate-700 shadow-sm">
-              <span className="flex h-2.5 w-2.5 rounded-full bg-[var(--primary)]" />
-              Portal akademik terpadu STAI
+            <div className="inline-flex items-center gap-4 rounded-[1.4rem] border border-[rgba(15,118,110,0.16)] bg-white/86 px-4 py-3 text-sm font-medium text-slate-700 shadow-sm">
+              <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-white">
+                <Image src="/logostai.png" alt="Logo STAI" width={56} height={56} className="h-11 w-11 object-contain" />
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-[0.24em] text-[var(--primary-strong)]">Portal akademik terpadu</p>
+                <p className="mt-1 text-sm font-semibold text-slate-800">Sekolah Tinggi Agama Islam</p>
+              </div>
             </div>
 
             <p className="mt-8 text-sm uppercase tracking-[0.3em] text-[var(--primary-strong)]">SIAKAD STAI</p>

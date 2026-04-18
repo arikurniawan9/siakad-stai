@@ -1,5 +1,5 @@
-import { Sidebar } from "@/components/layout/sidebar";
-import { Topbar } from "@/components/layout/topbar";
+import { DashboardShell } from "@/components/layout/dashboard-shell";
+import { getUserAccessContext } from "@/lib/admin/access-control";
 import { requireUser } from "@/lib/auth";
 
 export default async function DashboardLayout({
@@ -8,16 +8,7 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }>) {
   const user = await requireUser();
+  const access = await getUserAccessContext(user.id, user.role);
 
-  return (
-    <div className="flex min-h-screen">
-      <Sidebar user={user} />
-      <main className="min-w-0 flex-1 p-4 md:p-6">
-        <div className="mx-auto max-w-7xl space-y-6">
-          <Topbar user={user} />
-          {children}
-        </div>
-      </main>
-    </div>
-  );
+  return <DashboardShell user={{ ...user, role: access.resolvedRole }} items={access.sidebarItems}>{children}</DashboardShell>;
 }

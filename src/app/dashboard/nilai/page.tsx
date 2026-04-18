@@ -1,9 +1,9 @@
 import { Card } from "@/components/ui/card";
-import { requireUser } from "@/lib/auth";
+import { requireAuthorizedUser } from "@/lib/auth";
 import { RolePanel } from "@/modules/shared/role-panel";
 
 export default async function GradePage() {
-  const user = await requireUser(["Admin", "Prodi", "Dosen", "Mahasiswa"]);
+  const user = await requireAuthorizedUser("nilai", ["Admin", "Prodi", "Dosen", "Mahasiswa"]);
 
   return (
     <div className="space-y-6">
